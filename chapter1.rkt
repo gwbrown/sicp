@@ -36,6 +36,9 @@
   (define (ex1.4 a b)
     ((if (> b 0) + -) a b))
 
+  ;; Answer for ex1.5 & 1.6 is in the tests file
+
+  ;; ex1.7
   (define (sqrt x)
     (sqrt-iter 1 x))
 
@@ -64,9 +67,33 @@
   (define (better-enough? guess old-guess x)
     (< (abs (- guess old-guess)) (/ guess 1000)))
 
-  ;; Answer for ex1.5 is in the tests file
+  ;; ex1.8
+  (define (cube x)
+    (* x x x))
+  
+  (define (cuberoot x)
+    (cuberoot-iter 1 0 x))
+  
+  (define (cuberoot-iter guess old-guess x)
+    (if (better-enough? guess old-guess x)
+        guess
+        (cuberoot-iter (improve-cuberoot guess x) guess x)))
+  
+  (define (improve-cuberoot guess x)
+    (/ (+ (/ x (square guess)) (* 2 guess)) 3))
 
-  (#%provide ex1.1 ex1.2 ex1.3 ex1.4 square sqrt btr-sqrt))
+  (#%provide
+   cuberoot-iter
+   
+   ex1.1
+   ex1.2
+   ex1.3
+   ex1.4
+   square
+   sqrt
+   btr-sqrt
+   cube
+   cuberoot))
 
 (module+ test
   (require
@@ -165,9 +192,11 @@ absolute value of the original, the guess sucks."
       (check-false (does-sqrt-suck (btr-sqrt 4) 4))
       (check-false (does-sqrt-suck (btr-sqrt 0.3) 0.3))
       (check-false (does-sqrt-suck (btr-sqrt 0.0003) 0.0003))
-      (check-false (does-sqrt-suck (btr-sqrt 0.00007) 0.00007))
-      
-      ))
+      (check-false (does-sqrt-suck (btr-sqrt 0.00007) 0.00007)))
+
+    (test-case "ex1.8"
+      (check-within (cuberoot 27) 3 0.00001) ;; arbitrary "close enough"
+      (check-within (cuberoot (cube 4)) 4 0.00001)))
 
   
 
