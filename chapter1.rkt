@@ -32,4 +32,9 @@
           (sum-squares a c))
       (sum-squares b c)))
 
-(#%provide ex1.1 ex1.2 ex1.3)
+(define (ex1.4 a b)
+  ((if (> b 0) + -) a b))
+
+;; Answer for ex1.5 is in the tests file
+
+(#%provide ex1.1 ex1.2 ex1.3 ex1.4)
