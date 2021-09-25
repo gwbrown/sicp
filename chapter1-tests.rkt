@@ -61,7 +61,14 @@ simply loop evaluating to itself until interrupted by a user.
 When using a normal-order interpreter, Ben would instead see the
 expression (test 0 (p)) evaluate to 0. Because the expression would
 get expanded to (if (= 0 0) 0 (p)), which becomes (if #t 0 (p)),
-which evaluates to 0."))
+which evaluates to 0.")
+
+    (test-case "ex1.6"
+      "Because new-if is a procedure, rather than a special form,
+the usual evaluation order for our interpreter applies - and since
+our interpreter uses applicative-order evaluation, both `guess` and
+the call to `sqrt-iter` are evaluated before the `new-if` call. Due
+to this, `sqrt-iter` always calls itself, and therefore never halts."))
 
   
 
