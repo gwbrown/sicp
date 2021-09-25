@@ -36,9 +36,37 @@
   (define (ex1.4 a b)
     ((if (> b 0) + -) a b))
 
+  (define (sqrt x)
+    (sqrt-iter 1 x))
+
+  (define (sqrt-iter guess x)
+    (if (good-enough? guess x)
+        guess
+        (sqrt-iter (improve guess x) x)))
+
+  (define (improve guess x)
+    (average guess (/ x guess)))
+
+  (define (average x y)
+    (/ (+ x y) 2))
+
+  (define (good-enough? guess x)
+    (< (abs (- (square guess) x)) 0.001))
+
+  (define (btr-sqrt x)
+    (better-sqrt-iter 1 0 x))
+
+  (define (better-sqrt-iter guess old-guess x)
+    (if (better-enough? guess old-guess x)
+        guess
+        (better-sqrt-iter (improve guess x) guess x)))
+
+  (define (better-enough? guess old-guess x)
+    (< (abs (- guess old-guess)) (/ guess 1000)))
+
   ;; Answer for ex1.5 is in the tests file
 
-  (#%provide ex1.1 ex1.2 ex1.3 ex1.4))
+  (#%provide ex1.1 ex1.2 ex1.3 ex1.4 square sqrt btr-sqrt))
 
 (module+ test
   (require
@@ -110,7 +138,36 @@ our interpreter uses applicative-order evaluation, both `guess` and
 the call to `sqrt-iter` are evaluated before the `new-if` call. Due
 to this, `sqrt-iter` always calls itself, and therefore never halts.")
 
-    (test-case "ex1.7"))
+    (test-case "ex1.7"
+      "The sqrt implementation as defined in the text will indeed work
+quite poorly on small inputs - we can make a very rough check for this:
+if the difference between the square and the guess is larger than the
+absolute value of the original, the guess sucks."
+      (define (does-sqrt-suck guess original)
+        (< (abs original) (abs (- original (square guess)))))
+      (check-true (does-sqrt-suck 3 4)) ;; Just to check that it works
+
+      ;; The square root defined in the book doesn't suck for larger numbers
+      (check-false (does-sqrt-suck (sqrt 4) 4))
+      (check-false (does-sqrt-suck (sqrt 0.3) 0.3))
+
+      ;; But for smaller numbers, especially smaller than the constant
+      ;; we picked arbitrarily, it doesn't work so hot
+      (check-true (does-sqrt-suck (sqrt 0.0003) 0.0003))
+      (check-true (does-sqrt-suck (sqrt 0.00007) 0.00007))
+
+      ;; Having defined an alternative that compares how much the guess
+      ;; changes per iteration works much better, because making the
+      ;; threshold relative to the guess, rather than a static threshold,
+      ;; because no matter how small (or large) `guess` gets, it will
+      ;; cause the iteration to halt once the guess isn't changing very
+      ;; much (relative to itself!)
+      (check-false (does-sqrt-suck (btr-sqrt 4) 4))
+      (check-false (does-sqrt-suck (btr-sqrt 0.3) 0.3))
+      (check-false (does-sqrt-suck (btr-sqrt 0.0003) 0.0003))
+      (check-false (does-sqrt-suck (btr-sqrt 0.00007) 0.00007))
+      
+      ))
 
   
 
