@@ -82,6 +82,28 @@
   (define (improve-cuberoot guess x)
     (/ (+ (/ x (square guess)) (* 2 guess)) 3))
 
+  (define (ex1.9-A+ a b)
+  (if (= a 0) 
+      b 
+      (inc (ex1.9-A+ (dec a) b))))
+
+  (define (ex1.9-B+ a b)
+  (if (= a 0) 
+      b 
+      (ex1.9-B+ (dec a) (inc b))))
+
+  (define (ex1.10-A x y)
+    (cond ((= y 0) 0)
+          ((= x 0) (* 2 y))
+          ((= y 1) 2)
+          (else (ex1.10-A (- x 1)
+                          (ex1.10-A x (- y 1))))))
+
+  (define (ex1.10-f n) (ex1.10-A 0 n)) ;; (define (f2 x) (* 2 x))
+  (define (ex1.10-g n) (ex1.10-A 1 n)) ;; (define (g2 x) (expt 2 x))
+  (define (ex1.10-h n) (ex1.10-A 2 n)) ;; (define (h2 x) (expt 2 (expt 2 x)))
+  (define (ex1.10-k n) (* 5 n n))
+
   (#%provide
    cuberoot-iter
    
@@ -93,7 +115,14 @@
    sqrt
    btr-sqrt
    cube
-   cuberoot))
+   cuberoot
+   ex1.9-A+
+   ex1.9-B+
+   ex1.10-A
+   ex1.10-f
+   ex1.10-g
+   ex1.10-h
+   ex1.10-k))
 
 (module+ test
   (require
@@ -196,9 +225,27 @@ absolute value of the original, the guess sucks."
 
     (test-case "ex1.8"
       (check-within (cuberoot 27) 3 0.00001) ;; arbitrary "close enough"
-      (check-within (cuberoot (cube 4)) 4 0.00001)))
+      (check-within (cuberoot (cube 4)) 4 0.00001))
 
-  
+    (test-case "ex1.9"
+      (check-equal? (ex1.9-A+ 4 5) (if (= 4 0) 5 (ex1.9-A+ 3 6)))
+      (check-equal? (ex1.9-A+ 4 5) (if (= 3 0) 6 (ex1.9-A+ 2 7)))
+      (check-equal? (ex1.9-A+ 4 5) (if (= 2 0) 7 (ex1.9-A+ 1 8)))
+      (check-equal? (ex1.9-A+ 4 5) (if (= 1 0) 8 (ex1.9-A+ 0 9)))
+      (check-equal? (ex1.9-A+ 4 5) (if (= 0 0) 9 (ex1.9-A+ -1 10))))
+
+    (test-case "ex1.10"
+      (check-equal? (ex1.10-A 1 10) 1024)
+      (check-equal? (ex1.10-A 2 4) 65536)
+      (check-equal? (ex1.10-A 3 3) 65536)
+
+      (do ((i 0 (+ i 1)))
+          (< 10 i)
+        (check-equal? (ex1.10-f i) (* 2 i))
+        (check-equal? (ex1.10-g i) (expt 2 i))
+        (check-equal? (ex1.10-h i) (exp 2 (expt 2 i)))))
+    
+    )
 
   (run-tests ch1-tests))
 
